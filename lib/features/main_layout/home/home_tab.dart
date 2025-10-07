@@ -60,7 +60,7 @@ var langProvider = Provider.of<LanguageProvider>(context);
                         ),
                         Row(
                           children: [
-                            Icon(Icons.location_on, color: ColorsManager.white),
+                            Icon(Icons.location_on, color:themeProvider.isDark ?  ColorsManager.ofWhite: ColorsManager.white),
                             Text(
                               "Cairo, Egypt",
                               style: Theme.of(context).textTheme.headlineSmall,
@@ -72,17 +72,18 @@ var langProvider = Provider.of<LanguageProvider>(context);
                     Spacer(),
                    IconButton(onPressed: (){
                      themeProvider.changeAppTheme(themeProvider.isDark ? ThemeMode.light : ThemeMode.dark);
-                   }, icon:  Icon(themeProvider.isDark ? Icons.dark_mode_rounded: Icons.light_mode, color: ColorsManager.white)),
+                   }, icon:  Icon(themeProvider.isDark ? Icons.light_mode: Icons.dark_mode_rounded, color: themeProvider.isDark ? ColorsManager.ofWhite :ColorsManager.white)),
                     SizedBox(width: 10.w),
                     InkWell(
                       onTap: (){
                         langProvider.changeAppLanguage(langProvider.isEnglish ? "ar": "en");
                       },
                       child: Card(
+                        color: themeProvider.isDark ? ColorsManager.ofWhite : ColorsManager.white,
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: Text(
-                            langProvider.isEnglish ?"En": "Ar",
+                            langProvider.isEnglish ?"Ar": "En",
                             style: Theme.of(context).textTheme.headlineMedium,
                           ),
                         ),

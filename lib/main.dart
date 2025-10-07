@@ -1,4 +1,5 @@
 import 'package:evently_online_sat/config/theme/theme_manager.dart';
+import 'package:evently_online_sat/core/prefs_manager/prefs_manager.dart';
 import 'package:evently_online_sat/core/routes_manager/app_routes.dart';
 import 'package:evently_online_sat/core/routes_manager/router.dart';
 import 'package:evently_online_sat/l10n/app_localizations.dart';
@@ -8,7 +9,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 
-void main() {
+void main() async{
+   WidgetsFlutterBinding.ensureInitialized();
+ await PrefsManager.init();
   runApp(MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (context)=> ThemeProvider()),
