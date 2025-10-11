@@ -8,4 +8,8 @@ extension DateExtension on DateTime{
   String get viewDayNumber{
   return  day.toString();
   }
+
+  String get toFormattedDate => DateFormat("dd/MM/yyyy").format(this);
+
+  String get getTime =>  DateFormat.jm().format(this);
 }

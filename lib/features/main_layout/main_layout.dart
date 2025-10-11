@@ -20,12 +20,13 @@ late AppLocalizations appLocalizations;
   @override
   Widget build(BuildContext context) {
     appLocalizations = AppLocalizations.of(context)!;
-
+    print(MediaQuery.of(context).viewInsets.bottom);
+    bool isKeyboardOpen = MediaQuery.of(context).viewInsets.bottom != 0.0;
     return Scaffold(
       extendBody: true,
       body: tabs[selectedIndex],
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      floatingActionButton: _buildFab(),
+      floatingActionButton: isKeyboardOpen ? null : _buildFab(),
       bottomNavigationBar: _buildBottomAppBar(),
     );
   }
