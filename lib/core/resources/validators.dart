@@ -3,9 +3,7 @@ abstract class Validator{
     if (name == null || name.trim().isEmpty) {
       return "Name is Required";
     }
-    if (name.length < 4) {
-      return "Name should be at least 6 chars";
-    }
+
     return null;
   }
   static String? validateEmail(String? email){
@@ -32,6 +30,15 @@ abstract class Validator{
     if(!regExp.hasMatch(password)){
       return "Weak Password";
     }
+    return null;
+  }
+
+  static String? validateEventTitle(String? title){
+    if(title == null || title.trim().isEmpty) return "Plz, enter event title";
+    return null;
+  }
+  static String? validateEventDescription(String? description){
+    if(description == null || description.trim().isEmpty) return "Plz, enter event description";
     return null;
   }
 }

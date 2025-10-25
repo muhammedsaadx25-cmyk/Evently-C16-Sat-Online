@@ -1,18 +1,26 @@
 import 'package:evently_online_sat/core/resources/assets_manager.dart';
 import 'package:evently_online_sat/core/resources/colors_manager.dart';
+import 'package:evently_online_sat/core/routes_manager/app_routes.dart';
 import 'package:evently_online_sat/features/main_layout/profile/custom_drop_down_item.dart';
 import 'package:evently_online_sat/l10n/app_localizations.dart'
     show AppLocalizations;
+import 'package:evently_online_sat/models/user_model.dart';
 import 'package:evently_online_sat/providers/language_provider.dart';
 import 'package:evently_online_sat/providers/theme_provider.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
-class ProfileTab extends StatelessWidget {
+class ProfileTab extends StatefulWidget {
   const ProfileTab({super.key});
 
+  @override
+  State<ProfileTab> createState() => _ProfileTabState();
+}
+
+class _ProfileTabState extends State<ProfileTab> {
   @override
   Widget build(BuildContext context) {
     AppLocalizations appLocalizations = AppLocalizations.of(context)!;
@@ -43,7 +51,7 @@ class ProfileTab extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        "Moo Saad",
+                       UserModel.currentUser!.name,
                         style: GoogleFonts.inter(
                           fontSize: 24.sp,
                           fontWeight: FontWeight.bold,
@@ -51,7 +59,7 @@ class ProfileTab extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        "moosaad@gmail.com",
+                       UserModel.currentUser!.email,
                         style: GoogleFonts.inter(
                           fontSize: 18.sp,
                           fontWeight: FontWeight.w500,
@@ -97,7 +105,7 @@ class ProfileTab extends StatelessWidget {
                 color: ColorsManager.white,
               ),
             ),
-            onPressed: () {},
+            onPressed: _logout,
             child: Row(
               children: [
                 Icon(Icons.logout),
@@ -111,5 +119,11 @@ class ProfileTab extends StatelessWidget {
         Spacer(flex: 3),
       ],
     );
+  }
+
+  void _logout()async {
+   await   FirebaseAuth.instance.signOut();
+
+    Navigator.pushReplacementNamed(context, AppRoutes.login);
   }
 }

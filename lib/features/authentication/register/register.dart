@@ -1,3 +1,4 @@
+import 'package:evently_online_sat/core/UI_Utils.dart';
 import 'package:evently_online_sat/core/resources/assets_manager.dart';
 import 'package:evently_online_sat/core/resources/colors_manager.dart';
 import 'package:evently_online_sat/core/resources/validators.dart';
@@ -6,7 +7,11 @@ import 'package:evently_online_sat/core/routes_manager/router.dart';
 import 'package:evently_online_sat/core/widgets/custom_elevated_button.dart';
 import 'package:evently_online_sat/core/widgets/custom_text_button.dart';
 import 'package:evently_online_sat/core/widgets/custom_text_form_field.dart';
+import 'package:evently_online_sat/firebase/firebase_service.dart';
 import 'package:evently_online_sat/l10n/app_localizations.dart';
+import 'package:evently_online_sat/models/register_request.dart' show RegisterRequest;
+import 'package:evently_online_sat/models/user_model.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -23,34 +28,41 @@ class _RegisterState extends State<Register> {
   bool secureRePassword = true;
   late TextEditingController _nameController;
   late TextEditingController _emailController;
-  late TextEditingController _passwordController ;
- late TextEditingController _rePasswordController;
+  late TextEditingController _passwordController;
+
+  late TextEditingController _rePasswordController;
   GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
   @override
   void initState() {
-
     super.initState();
     _nameController = TextEditingController();
     _emailController = TextEditingController();
     _passwordController = TextEditingController();
     _rePasswordController = TextEditingController();
   }
+
   @override
   void dispose() {
-  _nameController.dispose();
-  _emailController.dispose();
-  _passwordController.dispose();
-  _rePasswordController.dispose();
+    _nameController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    _rePasswordController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-
-AppLocalizations appLocalizations = AppLocalizations.of(context)!;    return Scaffold(
+    AppLocalizations appLocalizations = AppLocalizations.of(context)!;
+    return Scaffold(
       resizeToAvoidBottomInset: false,
       body: Padding(
-        padding: EdgeInsets.only(left: 16, right: 16, top: 16, bottom: MediaQuery.of(context).viewInsets.bottom),
+        padding: EdgeInsets.only(
+          left: 16,
+          right: 16,
+          top: 16,
+          bottom: MediaQuery.of(context).viewInsets.bottom,
+        ),
         child: Form(
           key: _formKey,
           child: SingleChildScrollView(
@@ -80,9 +92,9 @@ AppLocalizations appLocalizations = AppLocalizations.of(context)!;    return Sca
                     SizedBox(height: 16.h),
                     CustomTextFormField(
                       controller: _passwordController,
-                      validator:Validator.validatePassword,
+                      validator: Validator.validatePassword,
                       isSecure: securePassword,
-                      labelText:appLocalizations.password,
+                      labelText: appLocalizations.password,
                       prefixIcon: Icon(Icons.lock),
                       suffixIcon: IconButton(
                         onPressed: _onTogglePasswordIconClicked,
@@ -121,7 +133,6 @@ AppLocalizations appLocalizations = AppLocalizations.of(context)!;    return Sca
                       keyboardType: TextInputType.visiblePassword,
                     ),
 
-
                     SizedBox(height: 16.h),
                     CustomElevatedButton(
                       text: appLocalizations.create_account,
@@ -157,9 +168,6 @@ AppLocalizations appLocalizations = AppLocalizations.of(context)!;    return Sca
     );
   }
 
-
-
-
   void _onTogglePasswordIconClicked() {
     setState(() {
       securePassword = !securePassword;
@@ -172,11 +180,25 @@ AppLocalizations appLocalizations = AppLocalizations.of(context)!;    return Sca
     });
   }
 
-  void _createAccount() {
-    /// step 1 -> check -> form valid or not
-    /// if form is valid -> create account
-    /// if not -
-
+  void _createAccount() async {
     if (_formKey.currentState?.validate() == false) return;
+
+    try{
+     UIUtils.showLoading(context, isDismissible: false);
+      UserCredential userCredential = await FirebaseService.register(RegisterRequest(email: _emailController.text, password: _passwordController.text));
+      UserModel user = UserModel(id: userCredential.user!.uid, name: _nameController.text, email: _emailController.text);
+      await FirebaseService.addUserToFireStore(user);
+     UIUtils.hideDialog(context);
+      UIUtils.showToastMessage("Successfully Registration", Colors.green);
+      Navigator.pushReplacementNamed(context, AppRoutes.login);
+    }on FirebaseAuthException catch(exception){
+      UIUtils.hideDialog(context);
+     UIUtils.showToastMessage(exception.code, ColorsManager.red);
+    }catch(exception){
+
+      UIUtils.hideDialog(context);
+      print(exception.toString());
+      UIUtils.showToastMessage("Failed to register", ColorsManager.red);
+    }
   }
 }
