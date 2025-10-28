@@ -1,5 +1,6 @@
 import 'package:evently_online_sat/core/extensions/date_ex.dart';
 import 'package:evently_online_sat/core/resources/colors_manager.dart';
+import 'package:evently_online_sat/firebase/firebase_service.dart';
 import 'package:evently_online_sat/models/event_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -7,16 +8,16 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 
 class EventItem extends StatefulWidget {
-  const EventItem({super.key, required this.event});
+  const EventItem({super.key, required this.event,  this.markAsFavourite});
 
   final EventModel event;
+  final bool? markAsFavourite;
 
   @override
   State<EventItem> createState() => _EventItemState();
 }
 
 class _EventItemState extends State<EventItem> {
-
   List<String> monthes = [
     "Jan",
     "Feb",
@@ -32,10 +33,10 @@ class _EventItemState extends State<EventItem> {
     "Dec",
   ];
 
-  bool favourite = false;
+  late bool favourite = widget.markAsFavourite?? false;
+
   @override
   Widget build(BuildContext context) {
-
     return Container(
       padding: REdgeInsets.all(8),
       margin: REdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -50,10 +51,9 @@ class _EventItemState extends State<EventItem> {
         ),
       ),
       child: Column(
-       crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Card(
-
             child: Padding(
               padding: const EdgeInsets.all(8.0),
               child: Column(
@@ -70,7 +70,7 @@ class _EventItemState extends State<EventItem> {
                     ),
                   ),
                   Text(
-                  widget.event.dateTime.viewMonthName,
+                    widget.event.dateTime.viewMonthName,
                     style: GoogleFonts.inter(
                       fontSize: 14.sp,
                       color: ColorsManager.blue,
@@ -83,34 +83,47 @@ class _EventItemState extends State<EventItem> {
           ),
           Spacer(),
           Card(
-            child:Padding(
+            child: Padding(
               padding: const EdgeInsets.all(8.0),
               child: Row(
                 children: [
                   Expanded(
                     child: Text(
-                     widget.event.title,
-                      style: Theme.of(context).textTheme.titleSmall
+                      widget.event.title,
+                      style: Theme.of(context).textTheme.titleSmall,
                     ),
                   ),
-                  IconButton(onPressed: (){
-                    setState(() {
-                       favourite = !favourite;
-                    });
-                  }, icon: Icon(favourite ? Icons.favorite : Icons.favorite_border_outlined, color: ColorsManager.blue,))
-
+                  IconButton(
+                    onPressed: _markEventAsFavourite,
+                    icon: Icon(
+                      favourite
+                          ? Icons.favorite
+                          : Icons.favorite_border_outlined,
+                      color: ColorsManager.blue,
+                    ),
+                  ),
                 ],
               ),
             ),
-          )
-
+          ),
         ],
       ),
     );
   }
 
-  String viewMonthName(DateTime date){
+  String viewMonthName(DateTime date) {
     DateFormat formatter = DateFormat("MMM");
     return formatter.format(date);
+  }
+
+  void _markEventAsFavourite() async {
+    if (favourite) {
+      FirebaseService.removeEventFromFavourite(widget.event);
+      favourite = false;
+    } else {
+      await FirebaseService.addEventToFavourite(widget.event);
+      favourite = true;
+    }
+    setState(() {});
   }
 }

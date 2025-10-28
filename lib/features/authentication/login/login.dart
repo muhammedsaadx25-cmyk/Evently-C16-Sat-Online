@@ -187,6 +187,7 @@ class _LoginState extends State<Login> {
   }
 
   void _login() async{
+
     if (_formKey.currentState?.validate() == false) return;
     try{
       UIUtils.showLoading(context, isDismissible: false);
@@ -205,7 +206,7 @@ class _LoginState extends State<Login> {
     }catch(exception){
       UIUtils.hideDialog(context);
       UIUtils.showToastMessage("Failed to login", Colors.red);
-
+print(exception.toString());
     }
   }
 }

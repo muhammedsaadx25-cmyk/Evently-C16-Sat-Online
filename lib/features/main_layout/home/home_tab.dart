@@ -139,8 +139,8 @@ class _HomeTabState extends State<HomeTab> {
             ),
           ),
         ),
-        FutureBuilder(
-          future: FirebaseService.getEventsFromFireStore(
+        StreamBuilder(
+          stream: FirebaseService.getEventsFromFireStoreRealTimeUpdates(
             context,
             selectedCategory,
           ),
@@ -156,7 +156,7 @@ class _HomeTabState extends State<HomeTab> {
               child: ListView.builder(
                 padding: EdgeInsets.zero,
                 itemBuilder: (context, index) =>
-                    EventItem(event: events[index]),
+                    EventItem(event: events[index], markAsFavourite: UserModel.currentUser!.favouriteEventsIds.contains(events[index].id) ,),
                 itemCount: events.length,
               ),
             );
